@@ -1,6 +1,8 @@
-from math import log2
-import pandas as pd
 import numpy as np
+import pandas as pd
+
+from math import log2
+from preprocess import csv_to_df
 
 def get_counts(data):
     total = len(data)
@@ -21,3 +23,11 @@ def calcu_each_gain(column, update_data):
     grouped = update_data.iloc[:, -1].groupby(column)
     temp = sum([len(g[1])/total*calcu_entropy(g[1]) for g in list(grouped)])
     return calcu_entropy(update_data.iloc[:, -1]) - temp
+
+def main():
+    raw_df = csv_to_df("./dataset/", "data.csv")
+    columns_entropy = [(col, calcu_each_gain(raw_df[col], raw_df)) for col in raw_df.iloc[:, :-1]]
+    print(columns_entropy)    
+
+if __name__ == "__main__":
+    main()
