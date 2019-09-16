@@ -31,7 +31,7 @@ def feature_eng(raw_df):
     pro_feature_mean = pro_feature.mean(axis = 0)
     pro_feature_std = pro_feature.std(axis = 0)
     pro_feature_normalized = (pro_feature - pro_feature_mean)/pro_feature_std
-    return pro_feature_normalized
+    return pro_feature_normalized, pro_feature_mean, pro_feature_std
 
 def label_eng(raw_df):
     raw_label = raw_df['label'].values

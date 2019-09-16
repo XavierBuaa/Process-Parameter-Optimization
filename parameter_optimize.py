@@ -19,14 +19,11 @@ from quality_predict import model_XGBoost
 def para_optimize(running_model,
                   feature,
                   label,
-                  feature_mean,
-                  feature_std,
                   input_sample):
     running_model.fit(feature, label)
     sample_count = input_sample.shape[0]
-    norm_sample = (input_sample - feature_mean)/feature_std
     quality_label = np.ones(sample_count)
-    final_input_format = np.column_stack((norm_sample, quality_label))
+    final_input_format = np.column_stack((input_sample, quality_label))
     pred_result = running_model.predict(final_input_format)
     return pred_result
 

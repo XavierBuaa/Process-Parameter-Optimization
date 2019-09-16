@@ -43,6 +43,12 @@ arg_parser.add_argument("--file_name",
 arg_parser.add_argument("--pred_model",
                         default=config.pred_model,
                         help="running model of quality prediction")
+arg_parser.add_argument("--output_dir",
+                        default=config.output_dir,
+                        help="output dir of trained model")
+arg_parser.add_argument("--pred_file_name",
+                        default=config.pred_file_name,
+                        help="prediction file name")
 arg_parser.add_argument("--opt_file_name",
                         default=config.opt_file_name,
                         help="optimization file name")
@@ -52,7 +58,7 @@ arg_parser.add_argument("--opt_parameter",
 args = arg_parser.parse_args()
 
 def main(args):
-    print(" *** Running function list *** ")
+    print(" ****** Running function list ****** ")
     if args.run_infogain is True:
         print("Priority of parameters influencing product quality")
     if args.run_qualitypredict is True:
@@ -60,26 +66,42 @@ def main(args):
     if args.run_parameteroptimize is True:
         print("Process parameter optimize")
 
-    print(" *** Loading trianing data from %s ***"%(args.file_path + args.file_name))
+    print(" ****** Loading trianing data from %s ******"%(args.file_path + args.file_name))
     raw_df = csv_to_df(args.file_path, args.file_name)
+    print(" *** Head of original dataset *** ")
     print(raw_df.head())
-    feature_matrix = feature_eng(raw_df)
+    feature_matrix, ori_feature_mean, ori_feature_std = feature_eng(raw_df)
     label_matrix = label_eng(raw_df)
 
     if args.run_infogain is True:
-        print(" *** Priority of parameters influencing product quality *** ")
+        print(" ****** Priority of parameters influencing product quality ****** ")
         columns_entropy = [(col, info_gain.calcu_each_gain(raw_df[col], raw_df)) for col in raw_df.iloc[:, :-1]]
+        print(" *** Information Gain of process parameter *** ")
         print(columns_entropy)    
 
     if args.run_qualitypredict is True:
-        print(" *** Product quality predict *** ")
+        print(" ****** Product quality predict ****** ")
         generator = quality_predict.cv_generator(feature_matrix, label_matrix)
         running_model = quality_predict.model_XGBoost()
-        quality_predict.frame_classification(generator, running_model, feature_matrix, label_matrix)
-        #单独的零件质量预测函数
+        print(" *** Training process *** ")
+        quality_predict.frame_classification(generator, running_model, feature_matrix, label_matrix, args.output_dir)
+
+
+        pred_norm_feature, pre_pred_df = quality_predict.pred_sample_reader(args.file_path,
+                                                               args.pred_file_name,
+                                                               ori_feature_mean,
+                                                               ori_feature_std)
+        pred_model_dir = args.output_dir + "model_1"
+        pred_result = quality_predict.qual_pred(pred_model_dir, pred_norm_feature)
+
+        print(" *** Product quality predict *** ")
+        print("Origin process parameter")
+        print(pre_pred_df)
+        print("Prediction quality result")
+        print(pred_result)
 
     if args.run_parameteroptimize is True:
-        print(" *** Process parameter optimize *** ")
+        print(" ****** Process parameter optimize ****** ")
         feature, label, feature_mean, feature_std = op_feature_ext(raw_df, args.opt_parameter)
         running_model = quality_predict.model_XGBoost()
         input_sample, ori_fea, ori_col = op_sample_reader(args.file_path,
@@ -90,9 +112,8 @@ def main(args):
         op_result = para_optimize(running_model,
                                   feature,
                                   label,
-                                  feature_mean,
-                                  feature_std,
                                   input_sample)
+        print(" *** Process parameter optimize *** ")
         print("Origin process parameter")
         print(ori_fea)
         print("Optimized %s"%(args.opt_parameter))

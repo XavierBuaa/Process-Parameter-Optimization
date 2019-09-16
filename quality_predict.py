@@ -2,6 +2,7 @@ import xlrd
 import numpy as np
 import pandas as pd
 from sklearn.svm import SVC
+from sklearn.externals import joblib
 from xgboost.sklearn import XGBRegressor
 from xgboost.sklearn import XGBClassifier
 from sklearn.preprocessing import OneHotEncoder
@@ -18,11 +19,11 @@ def cv_generator(feature_matrix, label_matrix):
     index_generator = kfold.split(feature_matrix, label_matrix)
     return index_generator
 
-def frame_classification(index_generator, pred_model, feature_matrix, label_matrix):
+def frame_classification(index_generator, pred_model, feature_matrix, label_matrix, output_dir):
     count_CV = 0
     test_acc_record = []
     test_pre_record = []
-    print(" *** Prediction model ***")
+    print(" *** Prediction model *** ")
     print( pred_model)
 
     for train_index,test_index in index_generator:
@@ -46,7 +47,10 @@ def frame_classification(index_generator, pred_model, feature_matrix, label_matr
         print('NumofIns Precisely Classified : ',pre_label_num,'\t',
               'NumofIns : ',test_count_num,'\t',
               'Pre_Accuracy : ',pre_label_num/test_count_num,'\t',)
-        
+
+        model_output_dir = output_dir + "model_%d"%(count_CV)
+        joblib.dump(pred_model, model_output_dir)
+        print("Writing trained model into dir : %s"%(model_output_dir))
         test_pre_record.append(pre_label_num/test_count_num)
 
     print('mean of NumofIns precisely classified',np.mean(test_pre_record))
@@ -84,6 +88,27 @@ def model_XGBoost():
     )
     return XGB_C
 
+def pred_sample_reader(sample_path,
+                       sample_name,
+                       feature_mean,
+                       feature_std):
+    pre_df = csv_to_df(sample_path, sample_name)
+    pro_df = pre_df.drop(columns = ["label"], axis = 1)
+    pro_df['ApxRs'] = pro_df['Ap']*pro_df['Rs']
+    pro_df['AexRs'] = pro_df['Ae']*pro_df['Rs']
+    pro_df['AexAp'] = pro_df['Ae']*pro_df['Ap']
+    pro_df['ApxRsxAe'] = pro_df['Ap']*pro_df['Rs']*pro_df['Ae']
+    pro_feature = pro_df.values
+    pro_feature_normalized = (pro_feature - feature_mean)/feature_std
+    return pro_feature_normalized, pre_df
+
+
+def qual_pred(model_dir,
+              input_sample):
+    trained_model = joblib.load(model_dir)
+    pred_result = trained_model.predict(input_sample)
+    return pred_result
+
 def main():
     pre_df = csv_to_df("./dataset/", "data.csv")
     feature_matrix = feature_eng(pre_df)
@@ -96,7 +121,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-

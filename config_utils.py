@@ -44,6 +44,9 @@ def reconfig(config_obj, config_dict, section_name):
         config_obj.file_path = str(config_dict["file_path"])
         config_obj.file_name = str(config_dict["file_name"])
         config_obj.pred_model = str(config_dict["pred_model"])
+        config_obj.output_dir = str(config_dict["output_dir"])
+        config_obj.pred_file_name = str(config_dict["pred_file_name"])
+
         config_obj.opt_file_name = str(config_dict["opt_file_name"])
         config_obj.opt_parameter = str(config_dict["opt_parameter"])
 
