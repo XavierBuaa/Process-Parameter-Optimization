@@ -30,9 +30,10 @@ def para_optimize(running_model,
 def op_sample_reader(sample_path,
                      sample_name,
                      col_name,
+                     pred_model,
                      feature_mean,
                      feature_std):
-    pre_df = csv_to_df(sample_path, sample_name)
+    pre_df = csv_to_df(sample_path, sample_name, pred_model)
     origin_col = pre_df[col_name]
     feature_df = pre_df.drop(columns = [col_name], axis = 1)
     pre_feature = feature_df.values

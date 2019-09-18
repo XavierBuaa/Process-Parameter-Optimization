@@ -2,12 +2,15 @@ import os
 import pandas as pd
 import numpy as np
 
-def csv_to_df(file_path, file_name):
+def csv_to_df(file_path, file_name, pred_model):
     file_dir = os.path.join(file_path, file_name)
     raw_df = pd.read_csv(file_dir, header = None)
     raw_df.rename(columns = {0:"Ae", 1:"Ap", 2:"Rs", 3:"Fz", 4:"label"}, inplace = True)
     raw_df.drop(columns = ['Fz'], axis = 1, inplace = True)
-    raw_df["label"] = raw_df.apply(lambda x : preprocess_label(x.label), axis = 1)
+    if pred_model == "XGBoost":
+        raw_df["label"] = raw_df.apply(lambda x : preprocess_label(x.label), axis = 1)
+    else:
+        raw_df["label"] = raw_df.apply(lambda x : preprocess_label_reg(x.label), axis = 1)
     return raw_df
 
 #def csv_to_matrix(file_path, file_name):
@@ -17,6 +20,12 @@ def csv_to_df(file_path, file_name):
 
 def preprocess_label(label):
     if label > 2:
+        return 1
+    else:
+        return 0
+
+def preprocess_label_reg(label):
+    if label > 1.6:
         return 1
     else:
         return 0

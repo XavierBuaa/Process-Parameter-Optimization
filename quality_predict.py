@@ -90,9 +90,10 @@ def model_XGBoost():
 
 def pred_sample_reader(sample_path,
                        sample_name,
+                       pred_model,
                        feature_mean,
                        feature_std):
-    pre_df = csv_to_df(sample_path, sample_name)
+    pre_df = csv_to_df(sample_path, sample_name, pred_model)
     pro_df = pre_df.drop(columns = ["label"], axis = 1)
     pro_df['ApxRs'] = pro_df['Ap']*pro_df['Rs']
     pro_df['AexRs'] = pro_df['Ae']*pro_df['Rs']

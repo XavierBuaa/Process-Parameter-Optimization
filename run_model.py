@@ -67,7 +67,7 @@ def main(args):
         print("Process parameter optimize")
 
     print(" ****** Loading trianing data from %s ******"%(args.file_path + args.file_name))
-    raw_df = csv_to_df(args.file_path, args.file_name)
+    raw_df = csv_to_df(args.file_path, args.file_name, args.pred_model)
     print(" *** Head of original dataset *** ")
     print(raw_df.head())
     feature_matrix, ori_feature_mean, ori_feature_std = feature_eng(raw_df)
@@ -88,9 +88,10 @@ def main(args):
 
 
         pred_norm_feature, pre_pred_df = quality_predict.pred_sample_reader(args.file_path,
-                                                               args.pred_file_name,
-                                                               ori_feature_mean,
-                                                               ori_feature_std)
+                                                                            args.pred_file_name,
+                                                                            args.pred_model,
+                                                                            ori_feature_mean,
+                                                                            ori_feature_std)
         pred_model_dir = args.output_dir + "model_1"
         pred_result = quality_predict.qual_pred(pred_model_dir, pred_norm_feature)
 
@@ -107,6 +108,7 @@ def main(args):
         input_sample, ori_fea, ori_col = op_sample_reader(args.file_path,
                                                           args.opt_file_name,
                                                           args.opt_parameter,
+                                                          args.pred_model,
                                                           feature_mean,
                                                           feature_std)
         op_result = para_optimize(running_model,
