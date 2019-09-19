@@ -1,4 +1,5 @@
 import sys
+import numpy as np
 from argparse import ArgumentParser
 
 import info_gain
@@ -81,30 +82,59 @@ def main(args):
 
     if args.run_qualitypredict is True:
         print(" ****** Product quality predict ****** ")
-        generator = quality_predict.cv_generator(feature_matrix, label_matrix)
-        running_model = quality_predict.model_XGBoost()
-        print(" *** Training process *** ")
-        quality_predict.frame_classification(generator, running_model, feature_matrix, label_matrix, args.output_dir)
 
+        if args.pred_model == "XGBoost":
+            generator = quality_predict.cv_generator(feature_matrix, label_matrix)
+        else:
+            accuracy_label_list = []
+            for ele in label_matrix:
+                if ele >= 1.62:
+                    accuracy_label_list.append(1)
+                else:
+                    accuracy_label_list.append(0)
+            label_matrix_int = np.array(accuracy_label_list)
+            generator = quality_predict.cv_generator(feature_matrix, label_matrix_int)
+
+        print(" *** Training process *** ")
+        if args.pred_model == "XGBoost":
+            running_model = quality_predict.model_XGBoost()
+            quality_predict.frame_classification(generator,
+                                                 running_model,
+                                                 feature_matrix,
+                                                 label_matrix,
+                                                 args.output_dir)
+        else:
+            running_model = quality_predict.model_GBDT()
+            quality_predict.frame_regression(generator,
+                                             running_model,
+                                             feature_matrix,
+                                             label_matrix,
+                                             args.output_dir)
 
         pred_norm_feature, pre_pred_df = quality_predict.pred_sample_reader(args.file_path,
                                                                             args.pred_file_name,
                                                                             args.pred_model,
                                                                             ori_feature_mean,
                                                                             ori_feature_std)
+
         pred_model_dir = args.output_dir + "model_1"
-        pred_result = quality_predict.qual_pred(pred_model_dir, pred_norm_feature)
+        pred_result = quality_predict.qual_pred(args.pred_model,
+                                                pred_model_dir,
+                                                pred_norm_feature)
 
         print(" *** Product quality predict *** ")
         print("Origin process parameter")
         print(pre_pred_df)
-        print("Prediction quality result")
+        print("Quality result prediction ")
         print(pred_result)
 
     if args.run_parameteroptimize is True:
         print(" ****** Process parameter optimize ****** ")
         feature, label, feature_mean, feature_std = op_feature_ext(raw_df, args.opt_parameter)
-        running_model = quality_predict.model_XGBoost()
+        if args.pred_model == "XGBoost":
+            running_model = quality_predict.model_XGBoost()
+        else:
+            running_model = quality_predict.model_GBDT()
         input_sample, ori_fea, ori_col = op_sample_reader(args.file_path,
                                                           args.opt_file_name,
                                                           args.opt_parameter,
@@ -114,6 +144,7 @@ def main(args):
         op_result = para_optimize(running_model,
                                   feature,
                                   label,
+                                  args.pred_model,
                                   input_sample)
         print(" *** Process parameter optimize *** ")
         print("Origin process parameter")

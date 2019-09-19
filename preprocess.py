@@ -10,7 +10,7 @@ def csv_to_df(file_path, file_name, pred_model):
     if pred_model == "XGBoost":
         raw_df["label"] = raw_df.apply(lambda x : preprocess_label(x.label), axis = 1)
     else:
-        raw_df["label"] = raw_df.apply(lambda x : preprocess_label_reg(x.label), axis = 1)
+        pass
     return raw_df
 
 #def csv_to_matrix(file_path, file_name):

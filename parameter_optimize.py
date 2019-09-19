@@ -19,10 +19,16 @@ from quality_predict import model_XGBoost
 def para_optimize(running_model,
                   feature,
                   label,
+                  pred_model,
                   input_sample):
     running_model.fit(feature, label)
     sample_count = input_sample.shape[0]
-    quality_label = np.ones(sample_count)
+    if pred_model == "XGBoost":
+        quality_label = np.ones(sample_count)
+    else:
+        quality_label = np.ones(sample_count)
+        for i in range(sample_count):
+            quality_label[i] = 2.5
     final_input_format = np.column_stack((input_sample, quality_label))
     pred_result = running_model.predict(final_input_format)
     return pred_result
