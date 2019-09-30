@@ -62,6 +62,15 @@ def op_feature_ext(raw_df, col_name):
 
     return raw_mix, label_feature, raw_feature_mean, raw_feature_std
 
+#### Function for GUI ####
+
+def GUI_csv_to_df(file_path):
+    raw_df = pd.read_csv(file_path, header = None)
+    raw_df.rename(columns = {0:"Ae", 1:"Ap", 2:"Rs", 3:"Fz", 4:"label"}, inplace = True)
+    raw_df.drop(columns = ['Fz'], axis = 1, inplace = True)
+    return raw_df
+
+
 def main():
     pre_df = csv_to_df("./dataset/", "data.csv")
     #pre_matrix = csv_to_matrix('./dataset/', 'data.csv')
