@@ -11,6 +11,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 
 from preprocess import csv_to_df
 from preprocess import op_feature_ext
+from preprocess import GUI_csv_to_df
 from quality_predict import model_LR
 from quality_predict import model_SVM
 from quality_predict import model_GBDT
@@ -47,6 +48,45 @@ def op_sample_reader(sample_path,
     raw_feature = pre_feature[:,0:-1]
     raw_feature_normalized = (raw_feature - feature_mean)/feature_std
     return raw_feature_normalized, pre_df, origin_col
+
+def GUI_op_training_data(file_name):
+    raw_df = GUI_csv_to_df(file_name)
+    
+    label_df = raw_df["Rs"]
+    label_feature = label_df.values
+    feature_df = raw_df.drop(columns = ["Rs"], axis = 1)                          
+    pre_feature = feature_df.values                                                   
+    
+    raw_feature = pre_feature[:,0:-1]                                                 
+    quality_label = pre_feature[:,-1]                                                 
+    
+    raw_feature_mean = raw_feature.mean(axis = 0)                                     
+    raw_feature_std = raw_feature.std(axis = 0)
+    raw_feature_normalized = (raw_feature - raw_feature_mean)/raw_feature_std         
+    raw_mix = np.column_stack((raw_feature_normalized, quality_label))
+    return raw_mix, raw_feature_mean, raw_feature_std, label_feature
+
+def GUI_op_sample_reader(file_path, feature_mean, feature_std):
+    pre_df = GUI_csv_to_df(file_path)
+    feature_df = pre_df.drop(columns = ["Rs"], axis = 1)
+    pre_feature = feature_df.values
+
+    raw_feature = pre_feature[:,0:-1]
+    raw_feature_normalized = (raw_feature - feature_mean)/feature_std
+    return raw_feature_normalized, feature_df
+
+def GUI_para_optimize(feature,
+                      label,
+                      input_sample):
+    running_model = model_GBDT()
+    running_model.fit(feature, label)
+    sample_count = input_sample.shape[0]
+    quality_label = np.ones(sample_count)
+    for i in range(sample_count):
+        quality_label[i] = 2.5
+    final_input_format = np.column_stack((input_sample, quality_label))
+    pred_result = running_model.predict(final_input_format)
+    return pred_result
 
 def main():
     pre_df = csv_to_df("./dataset/", "data.csv")

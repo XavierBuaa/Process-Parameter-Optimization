@@ -78,7 +78,7 @@ def main(args):
         print(" ****** Priority of parameters influencing product quality ****** ")
         columns_entropy = [(col, info_gain.calcu_each_gain(raw_df[col], raw_df)) for col in raw_df.iloc[:, :-1]]
         print(" *** Information Gain of process parameter *** ")
-        print(columns_entropy)    
+        print(columns_entropy)
 
     if args.run_qualitypredict is True:
         print(" ****** Product quality predict ****** ")

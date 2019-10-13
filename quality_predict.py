@@ -14,6 +14,7 @@ from preprocess import label_eng
 from preprocess import csv_to_df
 from preprocess import feature_eng
 from preprocess import preprocess_label_reg
+from preprocess import GUI_csv_to_df
 
 def cv_generator(feature_matrix, label_matrix):
     kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=7)
@@ -56,6 +57,47 @@ def frame_classification(index_generator, pred_model, feature_matrix, label_matr
 
     print('mean of NumofIns precisely classified',np.mean(test_pre_record))
 
+def GUI_frame_classification(index_generator, pred_model, feature_matrix, label_matrix, output_dir, treeview):
+    count_CV = 0
+    test_acc_record = []
+    test_pre_record = []
+    vis_index = 0
+    print(" *** Prediction model *** ")
+    print( pred_model)
+
+    for train_index,test_index in index_generator:
+
+        pred_model.fit(feature_matrix[train_index], label_matrix[train_index])
+        pred_smile_label = pred_model.predict(feature_matrix[test_index])
+        real_label = label_matrix[test_index]
+        
+        test_count_num = 0
+        real_label_index = 0
+        pre_label_num = 0
+        
+        for label in pred_smile_label:
+            if label == real_label[real_label_index]:
+                pre_label_num += 1
+            real_label_index += 1
+            test_count_num += 1
+        
+        vis_str1 = '####In-Cross-Validation-%d:####'% count_CV
+        treeview.insert("", vis_index, values=(vis_str1))
+        vis_index += 1
+        count_CV += 1
+
+        vis_str2 = 'NumofIns-Precisely-Classified:' + str(pre_label_num) + '##' + 'NumofIns:' + str(test_count_num) + '##' + 'Pre_Accuracy:' + str(pre_label_num/test_count_num)
+        treeview.insert("", vis_index, values=(vis_str2))
+        vis_index += 1
+
+        model_output_dir = output_dir + "model_%d"%(count_CV)
+        joblib.dump(pred_model, model_output_dir)
+        print("Writing trained model into dir : %s"%(model_output_dir))
+        test_pre_record.append(pre_label_num/test_count_num)
+
+    vis_str3 = 'mean-of-NumofIns-precisely-classified:' + str(np.mean(test_pre_record))
+    treeview.insert("", vis_index, values=(vis_str3))
+
 def frame_regression(index_generator, pred_model, feature_matrix, label_matrix, output_dir):
     pred_model.fit(feature_matrix, label_matrix)
     grd_enc_rlt = pred_model.apply(feature_matrix)
@@ -77,6 +119,8 @@ def frame_regression(index_generator, pred_model, feature_matrix, label_matrix, 
 
     #lr = model_LR()
     SVM = model_SVM()
+    #LR = model_LR()
+    #XGB = model_XGBoost()
     count_CV = 0
     test_acc_record = []
     test_pre_record = []
@@ -170,6 +214,27 @@ def qual_pred(pred_model,
             else:
                 cls_result.append(0)
         pred_result = np.array(cls_result)
+    return pred_result
+
+def GUI_pred_sample_reader(file_path):
+    pre_df = GUI_csv_to_df(file_path)
+    pre_df = pre_df.drop(columns = ["label"], axis = 1)
+    pro_df = pre_df.copy()
+    pro_df['ApxRs'] = pro_df['Ap']*pro_df['Rs']
+    pro_df['AexRs'] = pro_df['Ae']*pro_df['Rs']
+    pro_df['AexAp'] = pro_df['Ae']*pro_df['Ap']
+    pro_df['ApxRsxAe'] = pro_df['Ap']*pro_df['Rs']*pro_df['Ae']
+    pro_feature = pro_df.values
+    pro_feature_mean = pro_feature.mean(axis = 0)
+    pro_feature_std = pro_feature.std(axis = 0)
+
+    pro_feature_normalized = (pro_feature - pro_feature_mean)/pro_feature_std
+    return pro_feature_normalized, pre_df
+
+def GUI_qual_pred(model_dir,
+                  input_sample):
+    trained_model = joblib.load(model_dir)
+    pred_result = trained_model.predict(input_sample)
     return pred_result
 
 def main():

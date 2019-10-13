@@ -68,6 +68,7 @@ def GUI_csv_to_df(file_path):
     raw_df = pd.read_csv(file_path, header = None)
     raw_df.rename(columns = {0:"Ae", 1:"Ap", 2:"Rs", 3:"Fz", 4:"label"}, inplace = True)
     raw_df.drop(columns = ['Fz'], axis = 1, inplace = True)
+    raw_df["label"] = raw_df.apply(lambda x : preprocess_label(x.label), axis = 1)
     return raw_df
 
 
