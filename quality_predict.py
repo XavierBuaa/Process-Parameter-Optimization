@@ -86,7 +86,7 @@ def GUI_frame_classification(index_generator, pred_model, feature_matrix, label_
         vis_index += 1
         count_CV += 1
 
-        vis_str2 = 'NumofIns-Precisely-Classified:' + str(pre_label_num) + '##' + 'NumofIns:' + str(test_count_num) + '##' + 'Pre_Accuracy:' + str(pre_label_num/test_count_num)
+        vis_str2 = '正确分类样本量:' + str(pre_label_num) + '##' + '样本总数:' + str(test_count_num) + '##' + '分类准确率:' + str(pre_label_num/test_count_num)
         treeview.insert("", vis_index, values=(vis_str2))
         vis_index += 1
 
@@ -95,7 +95,7 @@ def GUI_frame_classification(index_generator, pred_model, feature_matrix, label_
         print("Writing trained model into dir : %s"%(model_output_dir))
         test_pre_record.append(pre_label_num/test_count_num)
 
-    vis_str3 = 'mean-of-NumofIns-precisely-classified:' + str(np.mean(test_pre_record))
+    vis_str3 = '分类平均准确率:' + str(np.mean(test_pre_record))
     treeview.insert("", vis_index, values=(vis_str3))
 
 def frame_regression(index_generator, pred_model, feature_matrix, label_matrix, output_dir):
