@@ -81,22 +81,21 @@ def GUI_frame_classification(index_generator, pred_model, feature_matrix, label_
             real_label_index += 1
             test_count_num += 1
         
-        vis_str1 = '####In-Cross-Validation-%d:####'% count_CV
-        treeview.insert("", vis_index, values=(vis_str1))
+        #vis_str1 = '####In-Cross-Validation-%d:####'% count_CV
+        #treeview.insert("", vis_index, values=(vis_str1))
+
+        #vis_str2 = '正确分类样本量:' + str(pre_label_num) + '##' + '样本总数:' + str(test_count_num) + '##' + '分类准确率:' + str(pre_label_num/test_count_num)
+        treeview.insert("", vis_index, values=(count_CV, pre_label_num, test_count_num, pre_label_num/test_count_num))
+
         vis_index += 1
         count_CV += 1
-
-        vis_str2 = '正确分类样本量:' + str(pre_label_num) + '##' + '样本总数:' + str(test_count_num) + '##' + '分类准确率:' + str(pre_label_num/test_count_num)
-        treeview.insert("", vis_index, values=(vis_str2))
-        vis_index += 1
-
         model_output_dir = output_dir + "model_%d"%(count_CV)
         joblib.dump(pred_model, model_output_dir)
         print("Writing trained model into dir : %s"%(model_output_dir))
         test_pre_record.append(pre_label_num/test_count_num)
 
-    vis_str3 = '分类平均准确率:' + str(np.mean(test_pre_record))
-    treeview.insert("", vis_index, values=(vis_str3))
+    #vis_str3 = '分类平均准确率:' + str(np.mean(test_pre_record))
+    treeview.insert("", vis_index, values=("平均准确率", "-", "-", np.mean(test_pre_record)))
 
 def frame_regression(index_generator, pred_model, feature_matrix, label_matrix, output_dir):
     pred_model.fit(feature_matrix, label_matrix)
