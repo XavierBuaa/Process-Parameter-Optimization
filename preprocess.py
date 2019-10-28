@@ -24,6 +24,12 @@ def preprocess_label(label):
     else:
         return 0
 
+def preprocess_label_thesis(label):
+    if label > 3.2:
+        return 0
+    else:
+        return 1
+
 def preprocess_label_reg(label):
     if label > 1.6:
         return 1
@@ -69,6 +75,13 @@ def GUI_csv_to_df(file_path):
     raw_df.rename(columns = {0:"Ae", 1:"Ap", 2:"Rs", 3:"Fz", 4:"label"}, inplace = True)
     raw_df.drop(columns = ['Fz'], axis = 1, inplace = True)
     raw_df["label"] = raw_df.apply(lambda x : preprocess_label(x.label), axis = 1)
+    return raw_df
+
+def GUI_csv_to_df_thesis(file_path):
+    raw_df = pd.read_csv(file_path, header = None)
+    raw_df.rename(columns = {0:"Ae", 1:"Ap", 2:"Rs", 3:"Fz", 4:"Ra"}, inplace = True)
+    raw_df.drop(columns = ['Fz'], axis = 1, inplace = True)
+    raw_df["label"] = raw_df.apply(lambda x : preprocess_label_thesis(x.Ra), axis = 1)
     return raw_df
 
 
