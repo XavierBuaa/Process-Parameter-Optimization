@@ -52,9 +52,9 @@ def op_sample_reader(sample_path,
 def GUI_op_training_data(file_name):
     raw_df = GUI_csv_to_df(file_name)
     
-    label_df = raw_df["Rs"]
+    label_df = raw_df["moment"]
     label_feature = label_df.values
-    feature_df = raw_df.drop(columns = ["Rs"], axis = 1)                          
+    feature_df = raw_df.drop(columns = ["moment"], axis = 1)                          
     pre_feature = feature_df.values                                                   
     
     raw_feature = pre_feature[:,0:-1]                                                 
@@ -68,7 +68,7 @@ def GUI_op_training_data(file_name):
 
 def GUI_op_sample_reader(file_path, feature_mean, feature_std):
     pre_df = GUI_csv_to_df(file_path)
-    feature_df = pre_df.drop(columns = ["Rs"], axis = 1)
+    feature_df = pre_df.drop(columns = ["moment"], axis = 1)
     pre_feature = feature_df.values
 
     raw_feature = pre_feature[:,0:-1]
@@ -83,7 +83,7 @@ def GUI_para_optimize(feature,
     sample_count = input_sample.shape[0]
     quality_label = np.ones(sample_count)
     for i in range(sample_count):
-        quality_label[i] = 2.5
+        quality_label[i] = 37.4
     final_input_format = np.column_stack((input_sample, quality_label))
     pred_result = running_model.predict(final_input_format)
     return pred_result

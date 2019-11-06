@@ -19,7 +19,7 @@ def csv_to_df(file_path, file_name, pred_model):
 #    return matrix
 
 def preprocess_label(label):
-    if label > 2:
+    if label >= 37.2 and label <= 37.6:
         return 1
     else:
         return 0
@@ -38,10 +38,7 @@ def preprocess_label_reg(label):
 
 def feature_eng(raw_df):
     pro_df = raw_df.drop(columns = ["label"], axis = 1)
-    pro_df['ApxRs'] = pro_df['Ap']*pro_df['Rs']
-    pro_df['AexRs'] = pro_df['Ae']*pro_df['Rs']
-    pro_df['AexAp'] = pro_df['Ae']*pro_df['Ap']
-    pro_df['ApxRsxAe'] = pro_df['Ap']*pro_df['Rs']*pro_df['Ae']
+    pro_df['momentxflatness'] = pro_df['moment']*pro_df['flatness']
     pro_feature = pro_df.values
     pro_feature_mean = pro_feature.mean(axis = 0)
     pro_feature_std = pro_feature.std(axis = 0)
@@ -72,8 +69,7 @@ def op_feature_ext(raw_df, col_name):
 
 def GUI_csv_to_df(file_path):
     raw_df = pd.read_csv(file_path, header = None)
-    raw_df.rename(columns = {0:"Ae", 1:"Ap", 2:"Rs", 3:"Fz", 4:"label"}, inplace = True)
-    raw_df.drop(columns = ['Fz'], axis = 1, inplace = True)
+    raw_df.rename(columns = {0:"moment", 1:"flatness", 2:"label"}, inplace = True)
     raw_df["label"] = raw_df.apply(lambda x : preprocess_label(x.label), axis = 1)
     return raw_df
 

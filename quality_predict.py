@@ -219,10 +219,7 @@ def GUI_pred_sample_reader(file_path):
     pre_df = GUI_csv_to_df(file_path)
     pre_df = pre_df.drop(columns = ["label"], axis = 1)
     pro_df = pre_df.copy()
-    pro_df['ApxRs'] = pro_df['Ap']*pro_df['Rs']
-    pro_df['AexRs'] = pro_df['Ae']*pro_df['Rs']
-    pro_df['AexAp'] = pro_df['Ae']*pro_df['Ap']
-    pro_df['ApxRsxAe'] = pro_df['Ap']*pro_df['Rs']*pro_df['Ae']
+    pro_df['momentxflatness'] = pro_df['moment']*pro_df['flatness']
     pro_feature = pro_df.values
     pro_feature_mean = pro_feature.mean(axis = 0)
     pro_feature_std = pro_feature.std(axis = 0)
