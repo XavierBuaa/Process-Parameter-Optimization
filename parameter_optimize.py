@@ -12,6 +12,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 from preprocess import csv_to_df
 from preprocess import op_feature_ext
 from preprocess import GUI_csv_to_df
+from preprocess import GUI_csv_to_df_opt
 from quality_predict import model_LR
 from quality_predict import model_SVM
 from quality_predict import model_GBDT
@@ -67,7 +68,7 @@ def GUI_op_training_data(file_name):
     return raw_mix, raw_feature_mean, raw_feature_std, label_feature
 
 def GUI_op_sample_reader(file_path, feature_mean, feature_std):
-    pre_df = GUI_csv_to_df(file_path)
+    pre_df = GUI_csv_to_df_opt(file_path)
     feature_df = pre_df.drop(columns = ["moment"], axis = 1)
     pre_feature = feature_df.values
 
