@@ -152,6 +152,63 @@ def frame_regression(index_generator, pred_model, feature_matrix, label_matrix, 
 
     print('mean of NumofIns precisely classified',np.mean(test_pre_record))
    
+def GUI_frame_regression(index_generator, pred_model, feature_matrix, label_matrix, output_dir, treeview):
+    pred_model.fit(feature_matrix, label_matrix)
+    grd_enc_rlt = pred_model.apply(feature_matrix)
+
+    grd_enc = OneHotEncoder()
+    grd_enc.fit(grd_enc_rlt)
+
+    enc_onehot = grd_enc.transform(grd_enc_rlt).toarray()
+    X_train_lr = np.append(feature_matrix, enc_onehot, axis=1)
+
+    accuracy_label_list = []
+    for ele in label_matrix:
+        if ele > 37.2 and ele < 37.6:
+            accuracy_label_list.append(1)
+        else:
+            accuracy_label_list.append(0)
+
+    accuracy_label = np.array(accuracy_label_list)
+
+    lr = model_LR()
+    #SVM = model_SVM()
+    #LR = model_LR()
+    #XGB = model_XGBoost()
+    count_CV = 0
+    test_acc_record = []
+    test_pre_record = []
+    vis_index = 0
+
+    for train_index,test_index in index_generator:
+        lr.fit(X_train_lr[train_index], accuracy_label[train_index])
+        pred_smile_label = lr.predict(X_train_lr[test_index])
+        print(pred_smile_label)
+        real_label = accuracy_label[test_index]
+        print(real_label)
+        
+        test_count_num = 0
+        real_label_index = 0
+        pre_label_num = 0
+        
+        for label in pred_smile_label:
+            if label == real_label[real_label_index]:
+                pre_label_num += 1
+            real_label_index += 1
+            test_count_num += 1
+
+        treeview.insert("", vis_index, values=(count_CV, pre_label_num, test_count_num, pre_label_num/test_count_num)) 
+
+        vis_index += 1
+        count_CV += 1
+
+        model_output_dir = output_dir + "model_%d"%(count_CV)
+        joblib.dump(pred_model, model_output_dir)
+        print("Writing trained model into dir : %s"%(model_output_dir))
+        test_pre_record.append(pre_label_num/test_count_num)
+
+    treeview.insert("", vis_index, values=("平均准确率", "-", "-", np.mean(test_pre_record)))
+
 def model_LR():
     lr = LogisticRegression(solver='newton-cg', multi_class='multinomial', C=4, tol=1e-6, max_iter=20)
     return lr
@@ -219,7 +276,6 @@ def GUI_pred_sample_reader(file_path):
     pre_df = GUI_csv_to_df(file_path)
     pre_df = pre_df.drop(columns = ["label"], axis = 1)
     pro_df = pre_df.copy()
-    pro_df['momentxflatness'] = pro_df['moment']*pro_df['flatness']
     pro_feature = pro_df.values
     pro_feature_mean = pro_feature.mean(axis = 0)
     pro_feature_std = pro_feature.std(axis = 0)
