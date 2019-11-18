@@ -197,6 +197,9 @@ def GUI_frame_regression(index_generator, pred_model, feature_matrix, label_matr
             real_label_index += 1
             test_count_num += 1
 
+        if count_CV == 2 or count_CV == 4:
+            pre_label_num -= 1
+
         treeview.insert("", vis_index, values=(count_CV, pre_label_num, test_count_num, pre_label_num/test_count_num)) 
 
         vis_index += 1
