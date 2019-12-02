@@ -67,6 +67,11 @@ def op_feature_ext(raw_df, col_name):
 
 #### Function for GUI ####
 
+def GUI_csv_to_df_raw(file_path):
+    raw_df = pd.read_csv(file_path, header = None)
+    raw_df.rename(columns = {0:"moment", 1:"flatness", 2:"label"}, inplace = True)
+    return raw_df
+
 def GUI_csv_to_df(file_path):
     raw_df = pd.read_csv(file_path, header = None)
     raw_df.rename(columns = {0:"moment", 1:"flatness", 2:"label"}, inplace = True)

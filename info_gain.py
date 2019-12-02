@@ -24,10 +24,27 @@ def calcu_each_gain(column, update_data):
     temp = sum([len(g[1])/total*calcu_entropy(g[1]) for g in list(grouped)])
     return calcu_entropy(update_data.iloc[:, -1]) - temp
 
+def calcu_each_gain_GUI(column, update_data):
+    total = len(column)
+    grouped = update_data.iloc[:, -1].groupby(column)
+    each_gain_statis = [] 
+    for item in grouped:
+        cond_entro = [item[0], 0, 0, 0, 1, 0]
+        index_list = list(item[1].value_counts().index)
+        for index in index_list:
+            if index == 0:
+                cond_entro[3] = item[1].value_counts()[index]
+            if index == 1:
+                cond_entro[5] = item[1].value_counts()[index]
+        cond_entro[1] = cond_entro[3] + cond_entro[5]
+        each_gain_statis.append(cond_entro)
+    temp = sum([len(g[1])/total*calcu_entropy(g[1]) for g in list(grouped)])
+    return calcu_entropy(update_data.iloc[:, -1]) - temp, each_gain_statis, temp, calcu_entropy(update_data.iloc[:, -1])
+
 def main():
     raw_df = csv_to_df("./dataset/", "data.csv")
     columns_entropy = [(col, calcu_each_gain(raw_df[col], raw_df)) for col in raw_df.iloc[:, :-1]]
-    print(columns_entropy)    
+    print(columns_entropy)
 
 if __name__ == "__main__":
     main()
