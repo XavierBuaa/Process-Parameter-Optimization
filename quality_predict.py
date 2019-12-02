@@ -206,9 +206,14 @@ def GUI_frame_regression(index_generator, pred_model, feature_matrix, label_matr
         count_CV += 1
 
         model_output_dir = output_dir + "model_%d"%(count_CV)
-        joblib.dump(pred_model, model_output_dir)
+        joblib.dump(lr, model_output_dir)
         print("Writing trained model into dir : %s"%(model_output_dir))
         test_pre_record.append(pre_label_num/test_count_num)
+
+    feature_model_output_dir = output_dir + "feature_model"
+    joblib.dump(pred_model, feature_model_output_dir)
+    encoder_model_output_dir = output_dir + "encoder_model"
+    joblib.dump(grd_enc, encoder_model_output_dir)
 
     treeview.insert("", vis_index, values=("平均准确率", "-", "-", np.mean(test_pre_record)))
 

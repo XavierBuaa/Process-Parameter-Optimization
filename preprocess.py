@@ -91,6 +91,16 @@ def GUI_csv_to_df_thesis(file_path):
     raw_df["label"] = raw_df.apply(lambda x : preprocess_label_thesis(x.Ra), axis = 1)
     return raw_df
 
+def feature_eng_GUI(raw_df, pred_df):
+    pro_df = raw_df.drop(columns = ["label"], axis = 1)
+    pro_pred_df = pred_df.drop(columns = ["label"], axis = 1)
+    #pro_df['momentxflatness'] = pro_df['moment']*pro_df['flatness']
+    pro_feature = pro_df.values
+    pro_pred_feature = pro_pred_df.values
+    pro_feature_mean = pro_feature.mean(axis = 0)
+    pro_feature_std = pro_feature.std(axis = 0)
+    pro_pred_feature_normalized = (pro_pred_feature - pro_feature_mean)/pro_feature_std
+    return pro_pred_feature_normalized
 
 def main():
     pre_df = csv_to_df("./dataset/", "data.csv")
