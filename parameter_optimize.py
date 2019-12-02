@@ -78,14 +78,16 @@ def GUI_op_sample_reader(file_path, feature_mean, feature_std):
 
 def GUI_para_optimize(feature,
                       label,
-                      input_sample):
+                      input_sample,
+                      opt_value):
     running_model = model_GBDT()
     running_model.fit(feature, label)
     sample_count = input_sample.shape[0]
     quality_label = np.ones(sample_count)
     for i in range(sample_count):
-        quality_label[i] = 37.4
+        quality_label[i] = opt_value
     final_input_format = np.column_stack((input_sample, quality_label))
+    print(final_input_format)
     pred_result = running_model.predict(final_input_format)
     return pred_result
 
