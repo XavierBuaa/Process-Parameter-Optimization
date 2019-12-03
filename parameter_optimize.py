@@ -51,7 +51,7 @@ def op_sample_reader(sample_path,
     return raw_feature_normalized, pre_df, origin_col
 
 def GUI_op_training_data(file_name):
-    raw_df = GUI_csv_to_df(file_name)
+    raw_df = GUI_csv_to_df_opt(file_name)
     
     label_df = raw_df["moment"]
     label_feature = label_df.values
@@ -80,6 +80,8 @@ def GUI_para_optimize(feature,
                       label,
                       input_sample,
                       opt_value):
+    print(feature)
+    print(label)
     running_model = model_GBDT()
     running_model.fit(feature, label)
     sample_count = input_sample.shape[0]
