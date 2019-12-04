@@ -197,9 +197,6 @@ def GUI_frame_regression(index_generator, pred_model, feature_matrix, label_matr
             real_label_index += 1
             test_count_num += 1
 
-        if count_CV == 2 or count_CV == 4:
-            pre_label_num -= 1
-
         treeview.insert("", vis_index, values=(count_CV, pre_label_num, test_count_num, pre_label_num/test_count_num)) 
 
         vis_index += 1
@@ -280,16 +277,19 @@ def qual_pred(pred_model,
         pred_result = np.array(cls_result)
     return pred_result
 
-def GUI_pred_sample_reader(file_path):
+def GUI_pred_sample_reader(file_path, nor_path):
     pre_df = GUI_csv_to_df(file_path)
+    pro_df = GUI_csv_to_df(nor_path)
+    print(pre_df)
     pre_df = pre_df.drop(columns = ["label"], axis = 1)
-    pro_df = pre_df.copy()
+    pro_df = pro_df.drop(columns = ["label"], axis = 1)
+    pre_feature = pre_df.values
     pro_feature = pro_df.values
     pro_feature_mean = pro_feature.mean(axis = 0)
     pro_feature_std = pro_feature.std(axis = 0)
 
-    pro_feature_normalized = (pro_feature - pro_feature_mean)/pro_feature_std
-    return pro_feature_normalized, pre_df
+    pre_feature_normalized = (pre_feature - pro_feature_mean)/pro_feature_std
+    return pre_feature_normalized, pre_df
 
 def GUI_qual_pred(model_dir,
                   input_sample):
